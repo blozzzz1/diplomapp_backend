@@ -22,6 +22,7 @@ VALUES
   ('moonshotai/Kimi-K2-Instruct-0905', true, NOW()),
   ('Qwen/Qwen3-Next-80B-A3B-Instruct', true, NOW()),
   ('claude-sonnet-4.6', true, NOW()),
+  ('claude-fable-5', true, NOW()),
   ('claude-opus-4.8', true, NOW()),
   ('claude-opus-4.8-fast', true, NOW()),
   ('claude-opus-4.7', true, NOW()),

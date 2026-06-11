@@ -159,7 +159,7 @@ const AITUNNEL_CHAT_URL = `${AITUNNEL_BASE}/chat/completions`;
 
 // Same list as frontend aiService.ts (каталог aitunnel.ru/models)
 const AITUNNEL_MODELS = [
-  'claude-sonnet-4.6', 'claude-opus-4.8', 'claude-opus-4.8-fast', 'claude-opus-4.7', 'claude-opus-4.6', 'claude-opus-4.5', 'claude-haiku-4.5', 'claude-sonnet-4.5',
+  'claude-sonnet-4.6', 'claude-fable-5', 'claude-opus-4.8', 'claude-opus-4.8-fast', 'claude-opus-4.7', 'claude-opus-4.6', 'claude-opus-4.5', 'claude-haiku-4.5', 'claude-sonnet-4.5',
   'claude-opus-4.1', 'claude-opus-4', 'claude-sonnet-4', 'claude-3.7-sonnet', 'claude-3.5-haiku', 'claude-3.5-sonnet',
   'grok-4', 'grok-4.1-fast', 'grok-4-fast', 'grok-code-fast-1', 'grok-4.20', 'grok-4.20-multi-agent', 'grok-build-0.1',
   'gemini-2.5-pro', 'gemini-2.5-flash', 'gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'gemini-3.1-pro-preview',
