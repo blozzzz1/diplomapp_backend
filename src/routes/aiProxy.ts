@@ -196,6 +196,25 @@ function isAITunnelModel(model: string): boolean {
   return AITUNNEL_MODELS.includes(model);
 }
 
+/** Claude Fable 5 отклоняет temperature/top_p/top_k и часть reasoning-параметров (400 от провайдера). */
+function isClaudeFableModel(model: string): boolean {
+  const id = model.toLowerCase();
+  return id === 'claude-fable-5' || id.startsWith('claude-fable');
+}
+
+function sanitizeAitunnelChatBody(body: Record<string, unknown>, model: string): Record<string, unknown> {
+  const out = { ...body };
+  if (!isClaudeFableModel(model)) {
+    return out;
+  }
+  delete out.temperature;
+  delete out.top_p;
+  delete out.top_k;
+  delete out.reasoning_effort;
+  delete out.thinking;
+  return out;
+}
+
 const router = Router();
 
 router.use(authenticateToken);
@@ -244,17 +263,22 @@ router.post('/chat/completions', aiChatLimiter, async (req: AuthenticatedRequest
       return;
     }
 
+    const payload = useAITunnel ? sanitizeAitunnelChatBody(body, model) : body;
+
     const response = await fetchWithTimeout(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
       timeoutMs: CHAT_TIMEOUT_MS,
     });
 
     const text = await response.text();
+    if (!response.ok) {
+      console.error(`AI chat proxy ${response.status} (${model}):`, text.slice(0, 800));
+    }
     try {
       const data = JSON.parse(text);
       res.status(response.status).json(data);
