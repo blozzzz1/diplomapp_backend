@@ -5,7 +5,9 @@ import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { AdminService } from '../services/adminService';
 import { StorageService } from '../services/storageService';
 import { ChatSession } from '../types';
-import { chatAttachmentUploadLimiter } from '../middleware/rateLimit';
+import { aiChatLimiter, chatAttachmentUploadLimiter } from '../middleware/rateLimit';
+import { processSessionReply } from '../services/chatReplyService';
+import { Message } from '../types';
 
 const router = Router();
 
@@ -184,6 +186,74 @@ router.post('/sessions', async (req: AuthenticatedRequest, res: Response) => {
   } catch (error) {
     console.error('Error in POST /sessions:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/chat/sessions/:id/reply — сохранить user message, вызвать AI на сервере, вернуть сессию
+router.post('/sessions/:id/reply', aiChatLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { id: sessionId } = req.params;
+    const body = req.body as {
+      userMessage?: Message;
+      model?: string;
+      apiMessages?: Array<{ role: string; content: unknown }>;
+    };
+
+    if (!body.userMessage || typeof body.userMessage !== 'object') {
+      res.status(400).json({ error: 'userMessage is required' });
+      return;
+    }
+    if (!body.model || typeof body.model !== 'string' || !body.model.trim()) {
+      res.status(400).json({ error: 'model is required' });
+      return;
+    }
+    if (!Array.isArray(body.apiMessages) || body.apiMessages.length === 0) {
+      res.status(400).json({ error: 'apiMessages array is required' });
+      return;
+    }
+
+    const owns = await ChatService.sessionBelongsToUser(sessionId, req.userId);
+    if (!owns) {
+      res.status(404).json({ error: 'Session not found' });
+      return;
+    }
+
+    // Не привязываемся к req.on('close') — AI и сохранение завершаются даже при закрытии вкладки
+    const result = await processSessionReply({
+      userId: req.userId,
+      sessionId,
+      userMessage: body.userMessage,
+      model: body.model.trim(),
+      apiMessages: body.apiMessages,
+    });
+
+    if (!result.ok) {
+      res.status(result.status).json({ error: result.error, code: result.code });
+      return;
+    }
+
+    if (result.inProgress) {
+      res.status(409).json({
+        error: 'Ответ уже генерируется для этой сессии',
+        code: 'REPLY_IN_PROGRESS',
+        session: result.session,
+      });
+      return;
+    }
+
+    if (!res.writableEnded) {
+      res.json({ session: result.session });
+    }
+  } catch (error) {
+    console.error('Error in POST /sessions/:id/reply:', error);
+    if (!res.writableEnded) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 });
 

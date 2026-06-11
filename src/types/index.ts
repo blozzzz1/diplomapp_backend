@@ -22,6 +22,8 @@ export interface Message {
   model?: string;
   images?: ImageAttachment[];
   files?: FileAttachment[];
+  /** Ответ ещё генерируется на сервере */
+  pending?: boolean;
 }
 
 export interface ChatSession {
