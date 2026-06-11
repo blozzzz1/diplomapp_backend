@@ -202,16 +202,30 @@ function isClaudeFableModel(model: string): boolean {
   return id === 'claude-fable-5' || id.startsWith('claude-fable');
 }
 
+/** Без max_tokens AITUNNEL резервирует полный max output (до 128K) — прогноз цены сотни ₽ и 402. */
+function getClaudeMaxTokensCap(model: string): number | null {
+  const id = model.toLowerCase();
+  if (!id.startsWith('claude-')) return null;
+  if (id.startsWith('claude-fable') || id.startsWith('claude-opus')) return 4096;
+  return 8192;
+}
+
 function sanitizeAitunnelChatBody(body: Record<string, unknown>, model: string): Record<string, unknown> {
   const out = { ...body };
-  if (!isClaudeFableModel(model)) {
-    return out;
+  if (isClaudeFableModel(model)) {
+    delete out.temperature;
+    delete out.top_p;
+    delete out.top_k;
+    delete out.reasoning_effort;
+    delete out.thinking;
   }
-  delete out.temperature;
-  delete out.top_p;
-  delete out.top_k;
-  delete out.reasoning_effort;
-  delete out.thinking;
+  const claudeCap = getClaudeMaxTokensCap(model);
+  if (claudeCap != null) {
+    const current = typeof out.max_tokens === 'number' ? out.max_tokens : undefined;
+    if (current === undefined || !Number.isFinite(current) || current > claudeCap) {
+      out.max_tokens = claudeCap;
+    }
+  }
   return out;
 }
 
