@@ -96,11 +96,13 @@ VALUES
   ('qwen3.6-flash', true, NOW()),
   ('qwen3.5-plus-20260420', true, NOW()),
   ('kimi-k2.6', true, NOW()),
+  ('kimi-k2.7-code', true, NOW()),
   ('minimax-m3', true, NOW()),
   ('mimo-v2.5', true, NOW()),
   ('mimo-v2.5-pro', true, NOW()),
   ('deepseek-v4-flash', true, NOW()),
   -- Модели изображений (IMAGE_MODELS)
+  ('gpt-image-2', true, NOW()),
   ('gpt-image-1.5', true, NOW()),
   ('gpt-image-1', true, NOW()),
   ('gpt-image-1-mini', true, NOW()),

@@ -30,7 +30,7 @@ export const AITUNNEL_MODELS = [
   'deepseek-v3.2-speciale', 'deepseek-v3.2-exp', 'deepseek-v3.1-terminus',
   'deepseek-chat-v3.1', 'deepseek-chat-v3-0324', 'deepseek-chat',
   'mistral-large-2512', 'mistral-medium-3.1', 'mistral-small-3.2-24b-instruct', 'codestral-2508',
-  'kimi-k2.5', 'kimi-k2.6',
+  'kimi-k2.5', 'kimi-k2.6', 'kimi-k2.7-code',
   'mimo-v2.5', 'mimo-v2.5-pro',
   'gpt-5.5', 'gpt-5.5-pro',
   'qwen3.6-27b', 'qwen3.6-max-preview', 'qwen3.7-max', 'qwen3.6-35b-a3b', 'qwen3.6-flash', 'qwen3.5-plus-20260420',
